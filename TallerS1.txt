@@ -1,0 +1,35 @@
+clc
+num=input('Ingresar el numerador de la ft en []=');
+den=input('Ingresar el denominador de la ft en []=');
+
+% Función de transferencia
+G=tf(num,den);
+disp('LA función de transferencias es: ');
+disp(G);
+%Gráfica de comportamiento de la ft
+step(G);
+grid on
+title('Función de transferencia');
+xlabel('Tiempo');
+
+%Lugar geometrico de las raices
+rlocus(G);
+grid on
+
+clc
+num=input('Ingresar el numerador de la ft en []=');
+den=input('Ingresar el denominador de la ft en []=');
+
+% Función de transferencia
+G=tf(num,den);
+disp('LA función de transferencias es: ');
+disp(G);
+%Gráfica de comportamiento de la ft
+step(G);
+grid on
+title('Función de transferencia');
+xlabel('Tiempo');
+
+%Lugar geometrico de las raices
+rlocus(G);
+grid on

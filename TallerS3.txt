@@ -1,0 +1,146 @@
+%Sección 1: punto a
+
+clear disp
+%PASO 1: GRÁFICAR LAZO ABIERTO.
+num=[1 2];
+den=[1 4 -3];
+
+disp('El comportamiento gráfico del sistema es: ');
+G=tf(num,den); % Función de transferencia
+step(G); % Gráficanto
+title('Función de transferencia');
+grid on
+disp('La función de transferencia es: ');
+disp(G);
+[A,B,C,D]=tf2ss(num,den);%Representación de espacio de estados
+disp('La matriz de espacio de estados es: ');
+disp('La matriz A es: ');
+disp(A);
+disp('La matriz B es: ');
+disp(B);
+disp('La matriz C es: ');
+disp(C);
+disp('La matriz D es: ');
+disp(D);
+rlocus(G);
+
+%Sección 1: punto a-2
+den2=den(2);
+den3=den(3);
+wnla=sqrt(den3);
+disp('La frecuencia natural del sistema en lazo abierto es: ');
+disp(wnla);
+
+% Estabilidad del sistema en lazo abierto(zita)
+zitala=den2/(wnla*2);
+disp('El factor de amortiguamiento es:');
+disp(zitala);
+
+if (zitala==1)
+    disp('criticamente amortiguado');
+    elseif (zitala>1)
+    disp('sobreamortiguado');
+    elseif (zitala<1)
+    disp('subamortiguado');
+    disp(zitala);
+end
+
+tsla=4/(zitala*wnla); % Tiempo de estabilización en lazo abierto
+disp('El tiempo de estabilizacion de lazo abierto es(seg): ');
+disp(tsla);
+
+%Sección 1: punto b
+
+zitalc= 0.7; %input('Ingresar el valor de zita que desea para el control de lazo cerrado: ');
+porclc= 20; %input('Ingrese el porcentaje de operación: ');
+syms R L
+estadopor=input('Ingrese si es más rapido (R) y si es más lento (L): ');
+
+switch estadopor
+    case R
+        portlc=(tsla)*(-porclc)/100;
+        tslc=tsla+portlc;
+        disp('Tiempo de estabilización de lazo cerrado más rapido es: ');
+        disp(tslc);
+    case L
+        portlc=(tsla)*(porclc)/100;
+        tslc=tsla+portlc;
+        disp('Tiempo de estabilización de lazo cerrado más lento es: ');
+        disp(tslc);
+    otherwise
+        disp('Valores no validos');
+end
+
+wnlc=4/(tslc*zitalc); % Frecuencia natural de lazo cerrado
+disp('La frecuencia natural del sistema en lazo cerrado es: ');
+disp(wnlc);
+
+pol1lc=[1 2*zitalc*wnlc wnlc^2]; % Comprobación del polinomio deseado
+pol2lc=[1 10*zitalc*wnlc]; % Nyquist
+poldesf=conv(pol1lc,pol2lc);
+
+
+disp('El polinomio deseado con condiciones de lazo cerrado es: ');
+disp(vpa(poly2sym(poldesf, s)));
+POLDES1=poldesf(1);
+POLDES2=poldesf(2);
+POLDES3=poldesf(3);
+POLDES4=poldesf(4);
+
+%Sección 1: punto c
+
+syms s KP KI KD
+n=length(A);
+SI=(s*eye(n));
+K=[KP KI KD];
+ECCAR0=vpa(det(((SI)-(A))));
+disp('La ecuacion caracteristica del sistema es: ');
+ECCAR1=collect(ECCAR0); % Ecuación caracteristica
+disp(ECCAR1);
+
+ECCAR2=sym2poly(ECCAR1);
+aECCAR2=ECCAR2(1);
+bECCAR2=ECCAR2(2);
+cECCAR2=ECCAR2(3);
+dECCAR2=ECCAR2(4);
+
+%Matriz de contrabilidad 
+disp('Matriz de controlabilidad');
+MCo= ctrb(A,B);
+disp(MCo)
+
+%Matriz de observabilidad
+disp('%Matriz de observabilidad');
+MObs= obsv(A,C);
+disp(MObs);
+
+%Controlabilidad
+RM= rank(MCo);
+%Observabilidad
+RN= rank(MObs);
+
+%Si es controlable
+if (RM==n)
+    disp('Es controlable')
+else
+    disp('No es controlable')
+    return;
+end
+
+%Si es observable
+if (RN==n)
+    disp('Es observable')
+else
+    disp('No es observable')
+    return;
+end
+
+% %PASO 5: Controlador
+K1=POLDES4-dECCAR2;
+K2=POLDES3-cECCAR2;
+K3=POLDES2-bECCAR2;
+K4=POLDES1-aECCAR2;
+K=[K1 K2 K3 K4];%KP KI KD KP
+disp('La ganancias del controlador son K=');
+disp(K);
+

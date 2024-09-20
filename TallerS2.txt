@@ -1,0 +1,55 @@
+%Funcion de transferencia. MODELAMIENTO
+NUM=2;
+DEM=[1 4 2];
+G=tf(NUM,DEM);
+disp('La funcion de transferencia es:');
+disp(G);
+
+%Punto 1: Graficar lazo abierto
+step(G);
+grid on
+title('Funcion de transferencia');
+xlabel('Tiempo (seg)');
+ylabel('Señal');
+%Representacion de espacio de estados
+[A,B,C,D]=tf2ss(NUM,DEM);
+
+%Punto 2: Condiciones de estabilidad para lazo abierto
+den=[1 4 2];
+den2=den(2);
+den3=den(3);
+disp('La frecuencia natural del sistema es: ');
+wnla=sqrt(den3)
+zitala=den2/(wnla*2);
+
+%Estabilidad del sistema
+disp('El factor de amortiguamiento es:');
+disp(zitala);
+if (zitala==1)
+    disp('criticamente amortiguado');
+    disp(zitala);
+elseif (zitala>1)
+        disp('sobreamortiguado');
+        disp(zitala);
+elseif (zitala<1)
+        disp('subamortiguado');
+        disp(zitala);
+end
+
+tsla=4/(zitala*wnla);
+disp('El tiempo de estabilizacion de lazo abierto es: ');
+disp(tsla);
+
+pol1la=[1 2*zitala*wnla wnla^2];
+
+%Punto 2: Condiciones de estabilidad para lazo cerrado
+
+zitalc=0.7
+porclc=-5; %si es mas lento el % positivo
+tlc=(tsla*porclc)/100;
+disp('El tiempo de estabilizacion de lazo cerrado es: ');
+tslc=tsla+tlc
+disp('La frecuencia natural del sistema para lazo cerrado es: ');
+wnlc=4/(tslc*zitalc)
+pol1lc=[1 2*zitalc*wnlc wnlc^2];
+pol2lc=[1 10*zitalc*wnlc];
